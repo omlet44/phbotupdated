@@ -1,12 +1,16 @@
+import os
+import sys
+
+print("Current working dir:", os.getcwd())
+print("Python sys.path:", sys.path)
+
+
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
 import asyncio
-import os
 from webserver import keep_alive
-
-keep_alive()
 
 DISCORD_TOKEN = os.environ["discordkey"]
 
@@ -264,5 +268,5 @@ async def list_mafia(interaction: discord.Interaction):
 
     await interaction.response.send_message(response, ephemeral=True)
 
-# Pornește botul
+keep_alive()
 bot.run(DISCORD_TOKEN)
