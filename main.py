@@ -4,6 +4,9 @@ from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
 import asyncio
 import os
+from webserver import keep_alive
+
+keep_alive()
 
 DISCORD_TOKEN = os.environ["discordkey"]
 
