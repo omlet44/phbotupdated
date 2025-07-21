@@ -1,18 +1,10 @@
-import os
-import sys
-
-print("Current working dir:", os.getcwd())
-print("Python sys.path:", sys.path)
-
-
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
-import asyncio
-from webserver import keep_alive
+import os
 
-DISCORD_TOKEN = os.environ["discordkey"]
+DISCORD_TOKEN = ''
 
 intents = discord.Intents.default()
 intents.members = True
@@ -22,12 +14,13 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
 
-GUILD_ID = 804406656787939409  # pune ID-ul serverului tău aici
+GUILD_ID = 804406656787939409
 
 # ROLE IDs (updatează cu ID-urile tale reale)
 LEADER_ROLE_ID = 804611140738088970
 CO_LEADER_ROLE_ID = 1380299498164584619
 COOLDOWN_ROLE_ID = 1383873402728743002
+ALLOWED_CHANNEL_ID = 873995655926915082
 
 MAFIA_ROLE_IDS = [
     882036077563609158,
@@ -86,6 +79,9 @@ async def remove_cooldown_roles():
     app_commands.Choice(name="Co-Lider", value="colider")
 ])
 async def add(interaction: discord.Interaction, user: discord.Member, rank: app_commands.Choice[str]):
+    if interaction.channel.id != ALLOWED_CHANNEL_ID:
+        await interaction.response.send_message("❌ Nu poți folosi această comandă în acest canal.", ephemeral=True)
+        return
     commander_mafia_roles = set(role.id for role in interaction.user.roles if role.id in MAFIA_ROLE_IDS)
     target_mafia_roles = set(role.id for role in user.roles if role.id in MAFIA_ROLE_IDS)
     cooldown_role = interaction.guild.get_role(COOLDOWN_ROLE_ID)
@@ -168,6 +164,9 @@ async def add(interaction: discord.Interaction, user: discord.Member, rank: app_
     app_commands.Choice(name="Co-Lider", value="colider")
 ])
 async def rmv(interaction: discord.Interaction, user: discord.Member, grad: app_commands.Choice[str]):
+    if interaction.channel.id != ALLOWED_CHANNEL_ID:
+        await interaction.response.send_message("❌ Nu poți folosi această comandă în acest canal.", ephemeral=True)
+        return
     if LEADER_ROLE_ID not in [role.id for role in interaction.user.roles] and \
        CO_LEADER_ROLE_ID not in [role.id for role in interaction.user.roles]:
         await interaction.response.send_message("❌ Nu ai permisiunea să folosești această comandă. Doar liderii sau co-liderii pot face asta.", ephemeral=True)
@@ -232,6 +231,9 @@ async def rmv(interaction: discord.Interaction, user: discord.Member, grad: app_
 # Comanda /list
 @tree.command(name="list", description="Listează membrii mafiei tale", guild=discord.Object(id=GUILD_ID))
 async def list_mafia(interaction: discord.Interaction):
+    if interaction.channel.id != ALLOWED_CHANNEL_ID:
+        await interaction.response.send_message("❌ Nu poți folosi această comandă în acest canal.", ephemeral=True)
+        return
     guild = interaction.guild
     user = interaction.user
 
@@ -268,5 +270,5 @@ async def list_mafia(interaction: discord.Interaction):
 
     await interaction.response.send_message(response, ephemeral=True)
 
-keep_alive()
+# Pornește botul
 bot.run(DISCORD_TOKEN)
